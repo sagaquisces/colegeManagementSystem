@@ -1,0 +1,17 @@
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/entity/InstructorDetail.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/entity/Instructor.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/controller/StudentInstructorBind.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/playground/CreateCourseAndStudents.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/controller/StudentController.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/playground/AddExistingStudentsToExistingCourse.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/entity/Review.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/entity/Student.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/utils/DateUtils.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/validation/CourseCodeConstraintValidator.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/entity/Course.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/controller/CourseController.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/mvc/HomeController.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/controller/InstructorController.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/playground/GetReviewsDemo.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/colege_management_system/validation/CourseCode.java
+/Users/michaeldunlap/eclipse-workspace/colege-management-system/src/com/michaeldaviddunlap/testdb/TestDbServlet.java
