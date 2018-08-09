@@ -8,7 +8,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.query.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 
 // import javax.servlet.http.HttpServletRequest;
@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,10 +31,15 @@ import com.michaeldaviddunlap.colege_management_system.entity.Instructor;
 import com.michaeldaviddunlap.colege_management_system.entity.InstructorDetail;
 import com.michaeldaviddunlap.colege_management_system.entity.Review;
 import com.michaeldaviddunlap.colege_management_system.entity.Student;
+import com.michaeldaviddunlap.colege_management_system.service.ColegeManagementService;
 
 @Controller
 @RequestMapping("/instructor")
 public class InstructorController {
+	
+	// inject colege management service
+	@Autowired
+	private ColegeManagementService colegeManagementService;
 	
 	@InitBinder
 	public void initBinder(WebDataBinder dataBinder) {
@@ -42,55 +48,20 @@ public class InstructorController {
 		dataBinder.registerCustomEditor(Instructor.class, stringTrimmerEditor);
 	}
 	
-	@RequestMapping("/list")
+	@GetMapping("/list")
 	public String listInstructors(Model theModel) {
 		
-	/////////////
-	//	start db operations
-	////////////
-	
-	// create session factory
-	SessionFactory factory = new Configuration()
-			.configure("hibernate.cfg.xml")
-			.addAnnotatedClass(Instructor.class)
-			.addAnnotatedClass(InstructorDetail.class)
-			.addAnnotatedClass(Course.class)
-			.addAnnotatedClass(Student.class)
-			.addAnnotatedClass(Review.class)
-			.buildSessionFactory();
-	
-	// create session
-	Session session = factory.getCurrentSession();
-	
-	try {
+		// get instructors from the dao
+		List<Instructor> theInstructors = colegeManagementService.getInstructors();
 		
-		// start a transaction
-		session.beginTransaction();
-		
-		
-		System.out.println("Getting instructor list...");
-		@SuppressWarnings("unchecked")
-		List<Instructor> theInstructors =
-				session
-					.createQuery("from Instructor")
-					.getResultList();
-		
-		// commit transaction
-		session.getTransaction().commit();
-		theModel.addAttribute("instructors", theInstructors);
-		
-		System.out.println(">>>> Instructors: " + theInstructors);
-	}
-	finally {
-		session.close();
-		factory.close();
-	}
+		// add the customers to the model
+		theModel.addAttribute("instructors", theInstructors); 
 		
 		return "list-instructors";
 	}
 	
 	// controller method to show add instructor form
-	@RequestMapping("/add")
+	@GetMapping("/add")
 	public String showInstructorForm(Model theModel) {
 		
 		// create instructor object
@@ -99,12 +70,7 @@ public class InstructorController {
 		
 		theInstructor.setInstructorDetail(theInstructorDetail);
 		
-		// InstructorDetail theInstructorDetail = new InstructorDetail();
-		
 		System.out.println(">>>>>>>>>>>>" + theInstructor);
-		
-		// associate the objects
-		// theInstructor.setInstructorDetail(theInstructorDetail);
 		
 		// add instructor object to model
 		theModel.addAttribute("instructor", theInstructor);
@@ -113,7 +79,7 @@ public class InstructorController {
 	}
 	
 	// controller method to process add instructor
-	@RequestMapping("/process")
+	@PostMapping("/process")
 	// public String processInstructorForm(HttpServletRequest request, Model model) {
 	public String processInstructorForm(@Valid @ModelAttribute("instructor") Instructor theInstructor, BindingResult theBindingResult,
 											@ModelAttribute("instructorDetail") InstructorDetail theInstructorDetail) {
@@ -128,42 +94,12 @@ public class InstructorController {
 			return "instructor-form";
 		}
 		
-		/////////////
-		//	start db operations
-		////////////
-		
-		// create session factory
-		SessionFactory factory = new Configuration()
-				.configure("hibernate.cfg.xml")
-				.addAnnotatedClass(Instructor.class)
-				.addAnnotatedClass(InstructorDetail.class)
-				.addAnnotatedClass(Course.class)
-				.addAnnotatedClass(Student.class)
-				.addAnnotatedClass(Review.class)
-				.buildSessionFactory();
-		
-		// create session
-		Session session = factory.getCurrentSession();
-		
-		try {
+
 			
-			// start a transaction
-			session.beginTransaction();
+		// save the student object
+		System.out.println("Saving the instructor..." + theInstructor);
+		colegeManagementService.saveOrUpdate(theInstructor); // one of the coolest factory methods; will sniff for id and save or update based on null or id.
 			
-			// save the student object
-			System.out.println("Saving the instructor..." + theInstructor);
-			session.saveOrUpdate(theInstructor); // one of the coolest factory methods; will sniff for id and save or update based on null or id.
-			
-			// commit transaction
-			session.getTransaction().commit();
-			
-			System.out.println("Saving instructor. Generated id:" + theInstructor.getId());
-			System.out.println("Done!");
-		}
-		finally {
-			session.close();
-			factory.close();
-		}
 		
 		//log the input data
 		System.out.println("theInstructor: " + theInstructor.getFirstName() + " " + theInstructor.getLastName());
@@ -183,6 +119,8 @@ public class InstructorController {
 				.addAnnotatedClass(Instructor.class)
 				.addAnnotatedClass(InstructorDetail.class)
 				.addAnnotatedClass(Course.class)
+				.addAnnotatedClass(Student.class)
+				.addAnnotatedClass(Review.class)
 				.buildSessionFactory();
 		
 		// create session
@@ -231,41 +169,15 @@ public class InstructorController {
 		@RequestParam("instructorId") int id,
 		Model theModel
 	) {
+		// get instructor from service
+		Instructor instructor = colegeManagementService.getInstructor(id);
+		// Hibernate.initialize(instructor.getInstructorDetail());
 		
-		/////////////
-		//	start db operations
-		////////////
+		// set customer as a model attribute for pre-populating
+		theModel.addAttribute("instructor", instructor);
 		
-		// create session factory
-		SessionFactory factory = new Configuration()
-				.configure("hibernate.cfg.xml")
-				.addAnnotatedClass(Instructor.class)
-				.addAnnotatedClass(InstructorDetail.class)
-				.addAnnotatedClass(Course.class)
-				.buildSessionFactory();
-		
-		// create session
-		Session session = factory.getCurrentSession();
-		
-		try {
+		System.out.println("LOOK HERE>> " + instructor);
 			
-			// start a transaction
-			session.beginTransaction();
-			// get customer from db
-			Instructor instructor = session.get(Instructor.class, id);
-			
-			// set customer as a model attribute for pre-populating
-			theModel.addAttribute("instructor", instructor);
-			
-			System.out.println("LOOK HERE>> " + instructor);
-			
-			// send to form
-			// commit transaction
-			session.getTransaction().commit();
-		} finally {
-			session.close();
-			factory.close();
-		}
 		
 		return "instructor-form";
 		
@@ -276,42 +188,9 @@ public class InstructorController {
 		@RequestParam("id") int id
 	) {
 		
-		/////////////
-		//	start db operations
-		////////////
-		
-		// create session factory
-		SessionFactory factory = new Configuration()
-				.configure("hibernate.cfg.xml")
-				.addAnnotatedClass(Instructor.class)
-				.addAnnotatedClass(InstructorDetail.class)
-				.addAnnotatedClass(Course.class)
-				.buildSessionFactory();
-		
-		// create session
-		Session session = factory.getCurrentSession();
-		
-		try {
-			
-			// start a transaction
-			session.beginTransaction();
-			// get customer from db
-			Instructor instructor = session.get(Instructor.class, id);
-			
-			// check to make sure there is actually a record to delete
-			if (instructor != null) {
-				// delete customer
-				session.delete(instructor);
-			}
-			
-			
-			
-			// commit transaction
-			session.getTransaction().commit();
-		} finally {
-			session.close();
-			factory.close();
-		}
+
+		colegeManagementService.deleteInstructor(id);
+
 		
 		return "redirect:/instructor/list";
 		

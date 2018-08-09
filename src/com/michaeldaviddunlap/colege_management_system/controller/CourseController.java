@@ -8,6 +8,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -24,11 +26,16 @@ import com.michaeldaviddunlap.colege_management_system.entity.Instructor;
 import com.michaeldaviddunlap.colege_management_system.entity.InstructorDetail;
 import com.michaeldaviddunlap.colege_management_system.entity.Review;
 import com.michaeldaviddunlap.colege_management_system.entity.Student;
+import com.michaeldaviddunlap.colege_management_system.service.ColegeManagementService;
 
 @Controller
 @RequestMapping("/course")
 public class CourseController {
 	
+	// inject colege management service
+	@Autowired
+	private ColegeManagementService colegeManagementService;
+
 	@InitBinder
 	public void initBinder(WebDataBinder dataBinder) {
 		
@@ -36,117 +43,42 @@ public class CourseController {
 		dataBinder.registerCustomEditor(Course.class, stringTrimmerEditor);
 	}
 	
-	@RequestMapping("/list")
+	@GetMapping("/list")
 	public String listCourse(Model theModel) {
 		
-		/////////////
-		//	start db operations
-		////////////
-		
-		// create session factory
-		SessionFactory factory = new Configuration()
-				.configure("hibernate.cfg.xml")
-				.addAnnotatedClass(Course.class)
-				.addAnnotatedClass(Instructor.class)
-				.addAnnotatedClass(InstructorDetail.class)
-				.addAnnotatedClass(Review.class)
-				.addAnnotatedClass(Student.class)
-				.buildSessionFactory();
-		
-		// create session
-		Session session = factory.getCurrentSession();
-		
-		try {
+		// get courses from DAO
+		List<Course> theCourses = colegeManagementService.getCourses();
 			
-			// start a transaction
-			session.beginTransaction();
-			
-			
-			System.out.println("Getting course list...");
-			@SuppressWarnings("unchecked")
-			List<Course> theCourses =
-					session
-						.createQuery("from Course")
-						.getResultList();
-			
-			// commit transaction
-			session.getTransaction().commit();
-			theModel.addAttribute("courses", theCourses);
-			
-			// System.out.println(">>>> Courses: " + theCourses);
-		}
-		finally {
-			session.close();
-			factory.close();
-		}
+		// add to model
+		theModel.addAttribute("courses", theCourses);
 		
 		return "list-courses";
 	}
 	
 	// controller method to show add instructor form
-	@RequestMapping("/add")
+	@GetMapping("/add")
 	public String showCourseForm(Model theModel) {
-		// get Instructor List
+		// get list of instructors for course form
+		List<Instructor> theInstructors = colegeManagementService.getInstructors();
 		
-		/////////////
-		//	start db operations
-		////////////
+		// add instructor list to model
+		theModel.addAttribute("instructors", theInstructors);
 		
-		// create session factory
-		SessionFactory factory = new Configuration()
-				.configure("hibernate.cfg.xml")
-				.addAnnotatedClass(Instructor.class)
-				.addAnnotatedClass(InstructorDetail.class)
-				.addAnnotatedClass(Course.class)
-				.addAnnotatedClass(Student.class)
-				.addAnnotatedClass(Review.class)
-				.buildSessionFactory();
-		
-		// create session
-		Session session = factory.getCurrentSession();
-		
-		try {
-			
-			// start a transaction
-			session.beginTransaction();
-			
-			
-			System.out.println("Getting instructor list...");
-			@SuppressWarnings("unchecked")
-			List<Instructor> theInstructors =
-					session
-						.createQuery("from Instructor")
-						.getResultList();
+		// System.out.println(">>>> Instructors: " + theInstructors);
 
-			
-			// commit transaction
-			session.getTransaction().commit();
-			
-			// add instructor list to model
-			theModel.addAttribute("instructors", theInstructors);
-			
-			System.out.println(">>>> Instructors: " + theInstructors);
-		}
-		finally {
-			session.close();
-			factory.close();
-		}
-		
-		
 		// create course object
 		Course theCourse = new Course();		
 		
 		// add course object to model
 		theModel.addAttribute("course", theCourse);
-		
-		
-		System.out.println("The MODEL:" + theModel);
+
+		// System.out.println("The MODEL:" + theModel);
 		
 		return "course-form";
 	}
 	
 	// controller method to process add course
-	@RequestMapping("/process")
+	@PostMapping("/process")
 	public String processCourseForm(
 		@Valid @ModelAttribute("course") Course theCourse, 
 		BindingResult theBindingResult,
@@ -161,98 +93,21 @@ public class CourseController {
 		
 		
 		if (theBindingResult.hasErrors()) {
-			// get Instructor List
 			
-			/////////////
-			//	start db operations
-			////////////
+			// get list of instructors for return to course form
+			List<Instructor> theInstructors = colegeManagementService.getInstructors();
 			
-			// create session factory
-			SessionFactory factory = new Configuration()
-					.configure("hibernate.cfg.xml")
-					.addAnnotatedClass(Instructor.class)
-					.addAnnotatedClass(InstructorDetail.class)
-					.addAnnotatedClass(Student.class)
-					.addAnnotatedClass(Course.class)
-					.addAnnotatedClass(Review.class)
-					.buildSessionFactory();
+			// add instructor list to model
+			theModel.addAttribute("instructors", theInstructors);
 			
-			// create session
-			Session session = factory.getCurrentSession();
+			// System.out.println(">>>> Instructors: " + theInstructors);
 			
-			try {
-				
-				// start a transaction
-				session.beginTransaction();
-				
-				
-				System.out.println("Getting instructor list...");
-				@SuppressWarnings("unchecked")
-				List<Instructor> theInstructors =
-						session
-							.createQuery("from Instructor")
-							.getResultList();
-				
-				// commit transaction
-				session.getTransaction().commit();
-				
-				// add instructor list to model
-				theModel.addAttribute("instructors", theInstructors);
-				
-				System.out.println(">>>> Instructors: " + theInstructors);
-			}
-			finally {
-				session.close();
-				factory.close();
-			}
+			
 			return "course-form";
 		}
 		
-		/////////////
-		//	start db operations
-		////////////
+		colegeManagementService.saveOrUpdate(theCourse);
 		
-		// create session factory
-		SessionFactory factory = new Configuration()
-				.configure("hibernate.cfg.xml")
-				.addAnnotatedClass(Course.class)
-				.addAnnotatedClass(Instructor.class)
-				.addAnnotatedClass(InstructorDetail.class)
-				.addAnnotatedClass(Student.class)
-				.addAnnotatedClass(Review.class)
-				.buildSessionFactory();
-		
-		// create session
-		Session session = factory.getCurrentSession();
-		
-		try {
-			
-			// start a transaction
-			session.beginTransaction();
-			
-			// lazily fetch the reviews
-			
-			
-			
-			// save the course object
-			System.out.println("Saving the course..." + theCourse);
-			session.saveOrUpdate(theCourse); // one of the coolest factory methods; will sniff for id and save or update based on null or id.
-			
-			// commit transaction
-			session.getTransaction().commit();
-			
-			System.out.println("Saving course. Generated id:" + theCourse.getId());
-			System.out.println("Done!");
-		}
-		finally {
-			session.close();
-			factory.close();
-		}
-		
-		// String result = "You have added a course: " + theCourse.getCode() + " --- " + theCourse.getTitle() + ".";
-		
-		// add message to model
-		// theModel.addAttribute("message", result);
 		return "redirect:/course/list";
 	}
 	
@@ -262,53 +117,21 @@ public class CourseController {
 		Model theModel
 	) {
 		
-		/////////////
-		//	start db operations
-		////////////
+
+		// get list of instructors for form	
+		List<Instructor> theInstructors = colegeManagementService.getInstructors();
 		
-		// create session factory
-		SessionFactory factory = new Configuration()
-				.configure("hibernate.cfg.xml")
-				.addAnnotatedClass(Course.class)
-				.addAnnotatedClass(Instructor.class)
-				.addAnnotatedClass(InstructorDetail.class)
-				.addAnnotatedClass(Review.class)
-				.addAnnotatedClass(Student.class)
-				.buildSessionFactory();
+		// set instructor list (a check in the form will select current instructor
+		theModel.addAttribute("instructors", theInstructors);
+			
+		Course course = colegeManagementService.getCourse(id);
 		
-		// create session
-		Session session = factory.getCurrentSession();
-		
-		try {
+		// set customer as a model attribute for pre-populating
+		theModel.addAttribute("course", course);
+
+		System.out.println("LOOK HERE>> " + course);
 			
-			// start a transaction
-			session.beginTransaction();
-			// get customer from db
-			Course course = session.get(Course.class, id);
-			
-			System.out.println("Getting instructor list...");
-			@SuppressWarnings("unchecked")
-			List<Instructor> theInstructors =
-					session
-						.createQuery("from Instructor")
-						.getResultList();
-			
-			// set customer as a model attribute for pre-populating
-			theModel.addAttribute("course", course);
-			
-			// set instructor list (a check in the form will select current instructor
-			theModel.addAttribute("instructors", theInstructors);
-			
-			
-			System.out.println("LOOK HERE>> " + course);
-			
-			// send to form
-			// commit transaction
-			session.getTransaction().commit();
-		} finally {
-			session.close();
-			factory.close();
-		}
+
 		
 		return "course-form";
 		
@@ -318,45 +141,19 @@ public class CourseController {
 		@RequestParam("courseId") int id
 	) {
 		
-		/////////////
-		//	start db operations
-		////////////
+
+//		Course course = session.get(Course.class, id);
+//		
+//		// check to make sure there is actually a record to delete
+//		if (course != null) {
+//			course.setInstructor(null);
+//			
+//			// delete customer
+//			session.delete(course);
+//		}
 		
-		// create session factory
-		SessionFactory factory = new Configuration()
-				.configure("hibernate.cfg.xml")
-				.addAnnotatedClass(Course.class)
-				.addAnnotatedClass(Instructor.class)
-				.addAnnotatedClass(InstructorDetail.class)
-				.addAnnotatedClass(Review.class)
-				.buildSessionFactory();
-		
-		// create session
-		Session session = factory.getCurrentSession();
-		
-		try {
-			
-			// start a transaction
-			session.beginTransaction();
-			// get course from db
-			Course course = session.get(Course.class, id);
-			
-			// check to make sure there is actually a record to delete
-			if (course != null) {
-				course.setInstructor(null);
-				
-				// delete customer
-				session.delete(course);
-			}
-			
-			
-			
-			// commit transaction
-			session.getTransaction().commit();
-		} finally {
-			session.close();
-			factory.close();
-		}
+		colegeManagementService.deleteCourse(id);
+
 		
 		return "redirect:/course/list";
 		
@@ -367,44 +164,13 @@ public class CourseController {
 		Model theModel,
 		@RequestParam("courseId") int id
 	) {
+
+		// get reviews from DAO
+		Course course = colegeManagementService.getCourse(id);
 		
-		/////////////
-		//	start db operations
-		////////////
-		
-		// create session factory
-		SessionFactory factory = new Configuration()
-				.configure("hibernate.cfg.xml")
-				.addAnnotatedClass(Course.class)
-				.addAnnotatedClass(Instructor.class)
-				.addAnnotatedClass(InstructorDetail.class)
-				.addAnnotatedClass(Review.class)
-				.addAnnotatedClass(Student.class)
-				.buildSessionFactory();
-		
-		// create session
-		Session session = factory.getCurrentSession();
-		
-		try {
-			
-			// start a transaction
-			session.beginTransaction();
-			// get course from db
-			Course course = session.get(Course.class, id);
-			Hibernate.initialize(course.getReviews());
-			
-			
-			theModel.addAttribute("course", course);
-			
-			
-			
-			// commit transaction
-			session.getTransaction().commit();
-		} finally {
-			session.close();
-			factory.close();
-		}
-		
+		// add course to the model
+		theModel.addAttribute("course", course);
+
 		return "course-reviews";
 		
 	}
@@ -412,142 +178,54 @@ public class CourseController {
 	// controller method to show form for adding a review
 	@GetMapping("/reviews/add")
 	public String showReviewForm(Model theModel, @RequestParam("courseId") int id) {
-	/////////////
-	//	start db operations
-	////////////
-	
-	// create session factory
-	SessionFactory factory = new Configuration()
-			.configure("hibernate.cfg.xml")
-			.addAnnotatedClass(Course.class)
-			.addAnnotatedClass(Student.class)
-			.addAnnotatedClass(Instructor.class)
-			.addAnnotatedClass(InstructorDetail.class)
-			.addAnnotatedClass(Review.class)
-			.buildSessionFactory();
-	
-	// create session
-	Session session = factory.getCurrentSession();
-	
-	try {
-		// start a transaction
-		session.beginTransaction();
-		
+
 		// get the course
-		Course tempCourse = session.get(Course.class, id);
+		Course course = colegeManagementService.getCourse(id);
 		
 		// add course to model
-		theModel.addAttribute("course", tempCourse);
-		
-		// commit transaction
-		session.getTransaction().commit();
-					
-	}
-	finally {
-		session.close();
-		factory.close();
-	}
+		theModel.addAttribute("course", course);
 	
-	// create reveiw object
-	Review theReview = new Review();
+		// create reveiw object
+		Review theReview = new Review();
 	
-	// add review object to model
-	theModel.addAttribute("review", theReview);
+		// add review object to model
+		theModel.addAttribute("review", theReview);
 	
 	return "review-form";
 	
 	}
 	
 	// controller method to process add review
-	@RequestMapping("/reviews/process")
+	@PostMapping("/reviews/process")
 	public String processReviewForm(
-		@RequestParam("courseId") String idStr,
+		@RequestParam("courseId") int courseId,
 		@Valid @ModelAttribute("review") Review theReview,
 		BindingResult theBindingResult,
 		Model theModel
 	) 
 	{
 		if (theBindingResult.hasErrors()) {
-			/////////////
-			//	start db operations
-			////////////
-			
-			// create session factory
-			SessionFactory factory = new Configuration()
-					.configure("hibernate.cfg.xml")
-					.addAnnotatedClass(Course.class)
-					.addAnnotatedClass(Instructor.class)
-					.addAnnotatedClass(InstructorDetail.class)
-					.addAnnotatedClass(Review.class)
-					.buildSessionFactory();
-			
-			// create session
-			Session session = factory.getCurrentSession();
-			
-			try {
-				// start transaction
-				session.beginTransaction();
+
 				
-				// get course
-				Course tempCourse = session.get(Course.class, Integer.parseInt(idStr));
+			// get the course
+			Course course = colegeManagementService.getCourse(courseId);
 				
-				// add to model for return to view
-				theModel.addAttribute("course", tempCourse);
-				
-				// commit transaction
-				session.getTransaction().commit();
-			}
-			finally {
-				session.close();
-				factory.close();
-			}
+			// add to model for return to view
+			theModel.addAttribute("course", course);
 			
 			return "review-form";
 		}
 
-		/////////////
-		//	start db operations
-		////////////
+			
+		// get the course
+		Course course = colegeManagementService.getCourse(courseId);
 		
-		// create session factory
-		SessionFactory factory = new Configuration()
-				.configure("hibernate.cfg.xml")
-				.addAnnotatedClass(Course.class)
-				.addAnnotatedClass(Instructor.class)
-				.addAnnotatedClass(InstructorDetail.class)
-				.addAnnotatedClass(Review.class)
-				.buildSessionFactory();
+		// add the review to the review list for course
+		course.addReview(theReview);
+		colegeManagementService.saveOrUpdate(course);
 		
-		// create session
-		Session session = factory.getCurrentSession();
 		
-		try {
-			
-			// start a transaction
-			session.beginTransaction();
-			
-			//add review to course
-			
-			//theCourse.getReviews();
-			Course tempCourse = session.get(Course.class, Integer.parseInt(idStr));
-			
-			// save the review object
-			
-			tempCourse.addReview(theReview);
-			session.saveOrUpdate(tempCourse);
-			// session.saveOrUpdate(theReview); // one of the coolest factory methods; will sniff for id and save or update based on null or id.
-			
-			// commit transaction
-			session.getTransaction().commit();
-			
-			System.out.println("Done!");
-		}
-		finally {
-			session.close();
-			factory.close();
-		}
-		
-		return "redirect:/course/reviews?courseId=" + idStr;
+		return "redirect:/course/reviews?courseId=" + courseId;
 	}
 	
 	@GetMapping("/reviews/deleteReview")
@@ -556,41 +234,7 @@ public class CourseController {
 		@RequestParam("courseId") int courseId
 	) {
 		
-		/////////////
-		//	start db operations
-		////////////
-		
-		// create session factory
-		SessionFactory factory = new Configuration()
-				.configure("hibernate.cfg.xml")
-				.addAnnotatedClass(Review.class)
-				.buildSessionFactory();
-		
-		// create session
-		Session session = factory.getCurrentSession();
-		
-		try {
-			
-			// start a transaction
-			session.beginTransaction();
-			// get review from db
-			Review review = session.get(Review.class, reviewId);
-			
-			// check to make sure there is actually a record to delete
-			if (review != null) {
-				
-				// delete review
-				session.delete(review);
-			}
-			
-			
-			
-			// commit transaction
-			session.getTransaction().commit();
-		} finally {
-			session.close();
-			factory.close();
-		}
+		colegeManagementService.deleteReview(reviewId);
 		
 		return "redirect:/course/reviews?courseId=" + courseId;
 		

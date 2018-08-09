@@ -45,7 +45,8 @@ public class Instructor {
 	private List<Course> courses;
 	
 	@OneToOne(
-		cascade=CascadeType.ALL
+		cascade=CascadeType.ALL,
+		fetch=FetchType.LAZY
 	)
 	@JoinColumn(name="instructor_detail_id")
 	private InstructorDetail instructorDetail;
@@ -109,7 +110,6 @@ public class Instructor {
 		this.courses = courses;
 	}
 	
-	// probably only needed for testing
 	public void add(Course tempCourse) {
 		
 		if(courses == null) {
@@ -120,7 +120,7 @@ public class Instructor {
 		
 		tempCourse.setInstructor(this);
 	}
-
+	
 	@Override
 	public String toString() {
 		return "Instructor [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email

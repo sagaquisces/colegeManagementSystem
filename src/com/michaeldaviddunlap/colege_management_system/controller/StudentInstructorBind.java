@@ -38,6 +38,7 @@ public class StudentInstructorBind {
 			
 		} finally {
 			
+			session.close();
 			factory.close();
 		}
 
