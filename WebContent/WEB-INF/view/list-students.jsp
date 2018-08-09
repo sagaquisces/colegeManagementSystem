@@ -1,4 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+
 <!DOCTYPE html>
 <html>
    <head>
@@ -37,6 +39,12 @@
       </div>
       <div class="w3-container">
          <h2>All Students</h2>
+         
+         <!--  add a search box -->
+         <form:form action="search" method="POST">
+            <p>Search students: <input type="text" name="searchName" />
+            <input type="submit" value="Search" class="w3-button w3-orange" /></p>
+         </form:form>
          <div class="w3-responsive">
             <table class="w3-table-all">
                <tr class="w3-orange">

@@ -11,5 +11,7 @@ public interface StudentDAO {
 	public void saveOrUpdateStudent(Student theStudent);
 
 	public Student getStudent(int id);
+
+	public List<Student> searchStudents(String searchName);
 	
 }

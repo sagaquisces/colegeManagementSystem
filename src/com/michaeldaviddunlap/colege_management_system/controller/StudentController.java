@@ -299,6 +299,19 @@ public class StudentController {
 		return "redirect:/student/" + studentId;
 	}
 	
+	@PostMapping("/search")
+	public String searchStudents(@RequestParam("searchName") String searchName, Model theModel) {
+		
+		// search students from the service
+		List<Student> students = colegeManagementService.searchStudents(searchName);
+		
+		// add the customers to the model
+        theModel.addAttribute("students", students);
+		
+		return "list-students";
+		
+	}
+	
 	public boolean alreadyTakingCourse (Course theCourse, List<Course> studentCourses) {
 		for (Course studentCourse: studentCourses ) {
 			if (theCourse.getId() == studentCourse.getId())

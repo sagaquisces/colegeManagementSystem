@@ -32,4 +32,6 @@ public interface ColegeManagementService {
 
 	public void deleteReview(int reviewId);
 
+	public List<Student> searchStudents(String searchName);
+
 }

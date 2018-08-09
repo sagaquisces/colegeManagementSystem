@@ -102,10 +102,18 @@ public class ColegeManagementServiceImpl implements ColegeManagementService {
 	}
 
 	@Override
+	@Transactional
 	public void deleteReview(int reviewId) {
 		
 		courseDAO.deleteReview(reviewId);
 		
+	}
+
+	@Override
+	@Transactional
+	public List<Student> searchStudents(String searchName) {
+		
+		return studentDAO.searchStudents(searchName);
 	}
 	
 	

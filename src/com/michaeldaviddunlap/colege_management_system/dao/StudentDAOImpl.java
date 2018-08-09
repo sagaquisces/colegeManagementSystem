@@ -58,4 +58,30 @@ public class StudentDAOImpl implements StudentDAO {
 		return theStudent;
 	}
 
+	@Override
+	public List<Student> searchStudents(String searchName) {
+		
+		// get current hibernate session
+		Session currentSession = sessionFactory.getCurrentSession();
+		
+		Query theQuery = null;
+		
+		//
+        // only search by name if theSearchName is not empty
+        //
+		
+		if(searchName != null && searchName.trim().length() > 0) {
+			theQuery = currentSession.createQuery("from Student where lower(firstName) like :theName or lower(lastName) like :theName", Student.class);
+			theQuery.setParameter("theName", "%" + searchName.toLowerCase() + "%");
+		} else {
+			// theSearchName is empty ... so just get all students
+            theQuery =currentSession.createQuery("from Student", Student.class); 
+		}
+		
+		// execute query and get result list
+        List<Student> students = theQuery.getResultList();
+		
+		return students;
+	}
+
 }
