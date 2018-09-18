@@ -109,6 +109,12 @@ public class InstructorController {
 	@RequestMapping(value="/{id}", method = RequestMethod.GET)
 	public String getInstructorById(@PathVariable int id, Model theModel) {
 		
+		// get instructor from the dao
+		// Instructor instructor = colegeManagementService.getInstructor(id);
+		// Hibernate.initialize(instructor.getCourses()); // hoping this is the simple solution. May eventually need @Transactional
+		// theModel.addAttribute("instructor", instructor);
+		// System.out.println("Get complete: " + instructor);
+		
 		/////////////
 		//	start db operations
 		////////////
@@ -131,21 +137,11 @@ public class InstructorController {
 			// start a transaction
 			session.beginTransaction();
 			
-			// retrieve student based on primary key
-			   Instructor instructor = session.get(Instructor.class, id);
-			   Hibernate.initialize(instructor.getCourses()); // hoping this is the simple solution. May eventually need @Transactional
-
-			// OR JOIN FETCH
-			
-//			Query<Instructor> query =
-//					session.createQuery("select i from Instructor i "
-//										+ "JOIN FETCH i.courses "
-//										+ "where i.id=:theInstructorId",
-//									Instructor.class);
-//			
-//			query.setParameter("theInstructorId", id);
-//			
-//			Instructor instructor = query.getSingleResult();
+			// retrieve instructor based on primary key
+			Instructor instructor = session.get(Instructor.class, id);
+			if (instructor != null) {
+				Hibernate.initialize(instructor.getCourses()); // hoping this is the simple solution. May eventually need @Transactional
+			}
 			
 			
 			theModel.addAttribute("instructor", instructor);

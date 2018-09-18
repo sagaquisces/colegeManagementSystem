@@ -37,7 +37,7 @@
          </div>
       </div>
       <div class="w3-container">
-         <h2>Welcome to Colege Management System</h2>
+         <h2>Welcome to the Colege Management System</h2>
       </div>
    </body>
 </html>

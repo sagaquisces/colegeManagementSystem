@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 
 import com.michaeldaviddunlap.colege_management_system.entity.Course;
 import com.michaeldaviddunlap.colege_management_system.entity.Instructor;
-import com.michaeldaviddunlap.colege_management_system.entity.Student;
 
 @Repository
 public class InstructorDAOImpl implements InstructorDAO {

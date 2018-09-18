@@ -63,7 +63,6 @@ public class ColegeManagementServiceImpl implements ColegeManagementService {
 	@Transactional
 	public void saveOrUpdate(Instructor theInstructor) {
 		instructorDAO.saveOrUpdateInstructor(theInstructor);
-		
 	}
 
 	@Override
@@ -75,7 +74,6 @@ public class ColegeManagementServiceImpl implements ColegeManagementService {
 	@Override
 	@Transactional
 	public Instructor getInstructor(int id) {
-		
 		return instructorDAO.getInstructor(id);
 	}
 
